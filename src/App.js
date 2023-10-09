@@ -85,5 +85,5 @@ class DynamicPolyline extends Component {
 }
 
 export default GoogleApiWrapper({
-  apiKey: 'AIzaSyCxf0Lru9dsaXjP9fg4hodlXDDRJH49C4c',
+  apiKey: 'API KEY',
 })(DynamicPolyline);
