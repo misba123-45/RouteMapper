@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
-import sampleData from './MockData';
-import './App.css';
 import { Map, GoogleApiWrapper, Polyline, Marker } from 'google-maps-react';
+import sampleData from './MockData';
+import { STARTING_POINT, ENDING_POINT } from './App.constants';
+import './App.css';
 
-
-class MapWithDynamicPolyline extends Component {
+class DynamicPolyline extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      polyline: [], // Array to store polyline coordinates
+      polyline: [], // polyline coordinates
       coordinates: sampleData,
       currentStep: 0, // Current step along the coordinates
       isPlaying:false
@@ -28,24 +28,22 @@ class MapWithDynamicPolyline extends Component {
     const { coordinates, currentStep,isPlaying } = this.state;
     if(isPlaying){
     const nextStep = currentStep + 1;
-
     if (nextStep < coordinates.length) {
       const startPoint = coordinates[currentStep];
       const endPoint = coordinates[nextStep];
       const intermediatePoints = this.interpolateCoordinates(startPoint, endPoint, 10);
-
-      this.setState((prevState) => ({
-        polyline: [...prevState.polyline, ...intermediatePoints],
+      this.setState((state) => ({
+        polyline: [...state.polyline, ...intermediatePoints],
         currentStep: nextStep,
       }));
     }
   }
   };
 
-  interpolateCoordinates(start, end, numPoints) {
+  interpolateCoordinates(start, end, points) {
     const intermediatePoints = [];
-    for (let i = 0; i < numPoints; i++) {
-      const fraction = i / (numPoints - 1);
+    for (let i = 0; i < points; i++) {
+      const fraction = i / (points - 1);
       const lat = Number(start.lat) + fraction * (Number(end.lat) - Number(start.lat));
       const lng = Number(start.lng) + fraction * (Number(end.lng) - Number(start.lng));
       intermediatePoints.push({ lat, lng });
@@ -61,25 +59,18 @@ class MapWithDynamicPolyline extends Component {
       scale: 4, 
       strokeColor: '#FF0000', 
     };
-    const icons = [
-      {
-        icon: lineSymbol,
-      },
-    ];
+    const icons = [{ icon: lineSymbol}];
     const buttonText=this.state.isPlaying?'Pause':'Play';
     return (
       <div>
-        <div>
-          <button className="button" onClick={()=>this.setState({isPlaying:!this.state.isPlaying})}>{buttonText}</button>
-        </div>
+        <button className="button" onClick={()=>this.setState({isPlaying:!this.state.isPlaying})}>{buttonText}</button>
         <Map
           google={google}
-          initialCenter={{ lat: 37.33071, lng: 11.27214 }} 
+          initialCenter={STARTING_POINT} 
           zoom={5}
-          
         >
-          <Marker position={{lat: 37.33071, lng: 11.27214 }} icon={{path:this.state.polyline.length ?google.maps.SymbolPath.CIRCLE: null,scale:4}}/>
-          <Marker position={{lat: 24.5015033333333, lng: 56.6211066666667 }}/>
+          <Marker position={STARTING_POINT} icon={{path:this.state.polyline.length ?google.maps.SymbolPath.CIRCLE: null,scale:4}}/>
+          <Marker position={ENDING_POINT}/>
           <Polyline
             path={polyline}
             strokeColor="#0000FF"
@@ -95,4 +86,4 @@ class MapWithDynamicPolyline extends Component {
 
 export default GoogleApiWrapper({
   apiKey: 'AIzaSyCxf0Lru9dsaXjP9fg4hodlXDDRJH49C4c',
-})(MapWithDynamicPolyline);
+})(DynamicPolyline);
