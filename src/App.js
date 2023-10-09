@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import sampleData from './MockData';
-import { Map, GoogleApiWrapper, Polyline } from 'google-maps-react';
+import './App.css';
+import { Map, GoogleApiWrapper, Polyline, Marker } from 'google-maps-react';
+
 
 class MapWithDynamicPolyline extends Component {
   constructor(props) {
@@ -9,6 +11,7 @@ class MapWithDynamicPolyline extends Component {
       polyline: [], // Array to store polyline coordinates
       coordinates: sampleData,
       currentStep: 0, // Current step along the coordinates
+      isPlaying:false
     };
   }
 
@@ -22,8 +25,8 @@ class MapWithDynamicPolyline extends Component {
   }
 
   updatePolyline = () => {
-    const { coordinates, currentStep } = this.state;
-
+    const { coordinates, currentStep,isPlaying } = this.state;
+    if(isPlaying){
     const nextStep = currentStep + 1;
 
     if (nextStep < coordinates.length) {
@@ -36,6 +39,7 @@ class MapWithDynamicPolyline extends Component {
         currentStep: nextStep,
       }));
     }
+  }
   };
 
   interpolateCoordinates(start, end, numPoints) {
@@ -60,17 +64,22 @@ class MapWithDynamicPolyline extends Component {
     const icons = [
       {
         icon: lineSymbol,
-      
       },
     ];
+    const buttonText=this.state.isPlaying?'Pause':'Play';
     return (
       <div>
+        <div>
+          <button className="button" onClick={()=>this.setState({isPlaying:!this.state.isPlaying})}>{buttonText}</button>
+        </div>
         <Map
           google={google}
           initialCenter={{ lat: 37.33071, lng: 11.27214 }} 
           zoom={5}
           
         >
+          <Marker position={{lat: 37.33071, lng: 11.27214 }} icon={{path:this.state.polyline.length ?google.maps.SymbolPath.CIRCLE: null,scale:4}}/>
+          <Marker position={{lat: 24.5015033333333, lng: 56.6211066666667 }}/>
           <Polyline
             path={polyline}
             strokeColor="#0000FF"
@@ -85,5 +94,5 @@ class MapWithDynamicPolyline extends Component {
 }
 
 export default GoogleApiWrapper({
-  apiKey: 'API KEY',
+  apiKey: 'AIzaSyCxf0Lru9dsaXjP9fg4hodlXDDRJH49C4c',
 })(MapWithDynamicPolyline);
